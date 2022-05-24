@@ -6,17 +6,18 @@ import numpy as np
 from subprocess import call
 
 def build_and_run(file, commitID, projectName, gitDirectory, argtxt):
-    pwd = os.cwd()
+    pwd = os.getcwd()
     # due to gradle issue, we must use java version 11 or higher
-    init_java_home = "JAVA_HOME=\"/usr/lib/jvm/java-11-openjdk-amd64\""
-    call(f"{init_java_home}")
-    call(f"./gradlew clean\n./gradlew build\n")
+    call(f"JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64", shell=True)
+    call(f"echo [debug.log]: =========> JAVA_HOME initiated", shell=True)
+    call(f"./gradlew clean\n./gradlew build\n", shell=True)
     # clean build ACC
-    call(f"cd app/build/distributions/\nunzip app.zip\ncd {pwd}\ncp app/build/distributions/app/bin/app pool/app")
+    call(f"echo {file} {commitID} {projectName} {gitDirectory}> {argtxt}", shell=True)
+    call(f"cd app/build/distributions/\nunzip app.zip\ncd app/bin/\n./app -l {pwd}/{argtxt}\ncp {pwd}/app/build/distributions/app/bin/vector/{projectName}_gumtree_vector.csv ~/leshen/APR/LCE/target/targetVector.csv", shell=True)
+    # cd {pwd}\ncp app/build/distributions/app/bin/app pool/app
     # unzip and copy the executable under ACC
-    call(f"echo {file} {commitID} {projectName} {gitDirectory}> {argtxt}")
     # create arguments as text file under ACC
-    call(f"cd ~/leshen/APR/AllChangeCollector/pool\n./app -l {pwd}/{argtxt}")
+    #call(f"cd ~/leshen/APR/AllChangeCollector/pool\n./app -l {pwd}/{argtxt}", shell=True)
     # execute ACC according to arguments text file
     return 0
 
